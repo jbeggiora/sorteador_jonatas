@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador Pro - Final</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+
+        .container { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+        h1 { color: #1a73e8; margin-bottom: 1.5rem; }
+
+        /* ALERTAS */
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: left; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .alert-error { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+        .alert-success { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+
+        /* INPUTS E BOTÕES */
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
+        
+        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .btn-add { background: #1a73e8; color: white; padding: 0 20px; }
+        .btn-next { background: #34a853; color: white; width: 100%; padding: 15px; font-size: 1.1rem; margin-top: 10px; }
+        .btn-reset { background: #ea4335; color: white; width: 100%; padding: 10px; margin-top: 25px; opacity: 0.8; }
+
+        /* LISTAS */
+        .listas-box { display: flex; gap: 15px; margin-top: 25px; text-align: left; }
+        .coluna { flex: 1; background: #f8f9fa; padding: 10px; border-radius: 8px; min-height: 100px; }
+        .coluna strong { font-size: 0.75rem; color: #777; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        ul { list-style: none; font-size: 0.9rem; }
+
+        /* ANIMAÇÃO CSS */
+        #overlay-animacao {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        .loader { width: 60px; height: 60px; border: 6px solid #f3f3f3; border-top: 6px solid #34a853; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="overlay-animacao">
+        <div class="loader"></div>
+        <h2 id="texto-suspense">Embaralhando a urna...</h2>
+    </div>
+
+    <div class="container">
+        <h1>Sorteio ao Vivo 🎲</h1>
+
+        {% if aviso %}
+            <div class="alert alert-{{ aviso.tipo }}">
+                {% if aviso.tipo == 'success' %} ✅ {% else %} ⚠️ {% endif %}
+                <strong>{{ aviso.texto }}</strong>
+            </div>
+        {% endif %}
+
+        {% if ultimo_sorteado %}
+            <div style="background: #eef9f1; padding: 15px; border-radius: 10px; border: 2px dashed #34a853; margin-bottom: 20px;">
+                <small>Sorteado:</small><br>
+                <strong style="font-size: 1.8rem; color: #188038;">{{ ultimo_sorteado }}</strong>
+            </div>
+        {% endif %}
+
+        <form method="POST" id="form-principal">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" name="nome" placeholder="Nome" autofocus required>
+                <button type="submit" name="adicionar" class="btn-add">Add</button>
+            </div>
+            
+            {% if lista_nomes %}
+                <button type="button" class="btn-next" onclick="iniciarSorteio(this)">
+                    SORTEAR AGORA ➔
+                </button>
+                <input type="hidden" name="sortear_um" value="1">
+            {% endif %}
+        </form>
+
+        <div class="listas-box">
+            <div class="coluna">
+                <strong>Urna ({{ lista_nomes|length }}/{{ limite }})</strong>
+                <ul>{% for n in lista_nomes %} <li>• {{ n }}</li> {% endfor %}</ul>
+            </div>
+            <div class="coluna">
+                <strong>Sorteados</strong>
+                <ul>{% for s in sorteados %} <li style="text-decoration: line-through; color: #aaa;">{{ s }}</li> {% endfor %}</ul>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="resetar" class="btn-reset">Zerar Tudo</button>
+        </form>
+    </div>
+
+    <script>
+        function iniciarSorteio(botao) {
+            const overlay = document.getElementById('overlay-animacao');
+            const texto = document.getElementById('texto-suspense');
+            const form = document.getElementById('form-principal');
+
+            botao.disabled = true; 
+            overlay.style.display = 'flex';
+
+            setTimeout(() => { texto.innerText = "Escolhendo o vencedor..."; }, 1500);
+            setTimeout(() => { form.submit(); }, 3000);
+        }
+    </script>
+</body>
+</html>
