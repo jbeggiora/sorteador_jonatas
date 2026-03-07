@@ -4,22 +4,21 @@ from dotenv import load_dotenv
 
 # 🛡️ PROTEÇÃO DE DADOS:
 # Esta função lê o arquivo '.env' (nosso cofre). 
-# Ela garante que senhas e chaves não fiquem expostas no código principal.
 load_dotenv()
 
 # Caminho base do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🛡️ CONFIGURAÇÃO DE SEGURANÇA:
-# Buscamos a chave mestra no 'cofre'. Se não houver .env, o site não abre por segurança.
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # 🛡️ MODO DE TESTE (DEBUG):
-# Se no .env estiver 'True', ele liga as ferramentas de erro. 
-# Em um site real na internet, isso deve ser sempre 'False' para não ajudar atacantes.
+# Em produção no Render, garanta que no painel de Environment o DEBUG seja 'False'.
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+# 🛡️ AJUSTE DE ACESSO:
+# Liberando o endereço do seu site no Render e testes locais.
+ALLOWED_HOSTS = ['sorteador-jonatas.onrender.com', 'localhost', '127.0.0.1']
 
 # --- ABAIXO SEGUEM AS CONFIGURAÇÕES PADRÃO DO DJANGO ---
 
@@ -35,7 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Essencial para o site gratuito (Render)
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Essencial para o Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -49,8 +48,6 @@ ROOT_URLCONF = 'sorteador_jonatas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # [AJUSTE AQUI]: Adicionamos o BASE_DIR / 'templates' para o Django 
-        # saber que deve olhar na pasta principal de templates também.
         'DIRS': [BASE_DIR / 'templates'], 
         'APP_DIRS': True,
         'OPTIONS': {
@@ -63,8 +60,6 @@ TEMPLATES = [
         },
     },
 ]
-          
-        
 
 WSGI_APPLICATION = 'sorteador_jonatas.wsgi.application'
 
@@ -87,8 +82,10 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
+# 📂 ARQUIVOS ESTÁTICOS (CSS, JS, Imagens)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+# Configuração para o WhiteNoise servir arquivos compactados.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
