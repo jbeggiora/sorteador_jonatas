@@ -18,7 +18,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # 🛡️ AJUSTE DE ACESSO:
 # Liberando o endereço do seu site no Render e testes locais.
-ALLOWED_HOSTS = ['sorteador-jonatas.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['sorteador-jonatas.onrender.com', 'localhost', '127.0.0.1', 'jteodoro.pythonanywhere.com']
 
 # --- ABAIXO SEGUEM AS CONFIGURAÇÕES PADRÃO DO DJANGO ---
 
